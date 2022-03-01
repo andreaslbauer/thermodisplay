@@ -201,7 +201,7 @@ class eink:
 
                 draw.text((172, 32 + position * 64), text, font=self.font24, fill=0)
                 draw.text((210, 60 + position * 64), "min", font=self.font24, fill=0)
-                draw.line((190, 74 + position * 64, 210, 74 - 20 + position * 64), width=2, fill=0)
+                draw.line((200, 74 + position * 64, 220, 74 - 20 + position * 64), width=2, fill=0)
                 position = position + 1
 
 
