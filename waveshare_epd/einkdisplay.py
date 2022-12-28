@@ -179,11 +179,16 @@ class eink:
             # format the temperature string
             text = ''
             position = 0
-
+            rowCount = 0
             for temp in temps:
+                # we want to display up to 2 rows
+                rowCount = rowCount + 1
+                if rowCount > 2:
+                    break
+
                 text = ""
                 if temp != None:
-                    text = "{0:3.1f} ".format(temp)
+                    text = "{:.1f} ".format(temp)
                 else:
                     text = "N/A"
 
@@ -192,10 +197,16 @@ class eink:
                 position = position + 1
 
             position = 0
+            rowCount = 0
             for rate in changes:
+                # we want to display up to 2 rows
+                rowCount = rowCount + 1
+                if rowCount > 2:
+                    break
+
                 text = ""
                 if rate != None:
-                    text = "{0:3.1f} ".format(rate)
+                    text = "{:.1f} ".format(rate)
                 else:
                     text = "N/A"
 
@@ -204,6 +215,60 @@ class eink:
                 draw.line((200, 74 + position * 64, 220, 74 - 20 + position * 64), width=2, fill=0)
                 position = position + 1
 
+            # every so often clear the display
+            self.iteration += 1
+            if self.displayepd and self.iteration > 15:
+                self.epd.Clear(255)
+                self.iteration = 0
+
+            if (self.canvas != None):
+                photo = ImageTk.PhotoImage(blackimage)
+                self.canvas.create_image(0, 0, image=photo, anchor="nw")
+                self.canvas.pack()
+                self.canvas.update_idletasks()
+
+            if self.displayepd:
+                self.epd.display(self.epd.getbuffer(blackimage))
+
+        except IOError as e:
+            logging.info(e)
+
+
+    def displayTable(self, temps, changes, datasets, timebetweenupdates):
+        try:
+            blackimage = Image.new('1', (self.epd.height, self.epd.width), 255)  # 255: clear the frame
+            draw = ImageDraw.Draw(blackimage)
+
+            # display current date / time
+            text = datetime.datetime.now().strftime("%m/%d/%Y   %H:%M:%S")
+            draw.text((10, 0), text, font=self.font22, fill=0)
+            draw.line((0, 30, self.width, 30), width=2, fill=0)
+
+            # format the temperature string
+            text = ''
+            position = 0
+
+            for temp in temps:
+                text = ""
+                if temp != None:
+                    text = "{:.2f} ".format(temp)
+                else:
+                    text = "N/A"
+
+                draw.text((10, 28 + position * 28), text, font=self.font24, fill=0)
+                draw.line((0, 58 + position * 28, self.width, 58 + position * 28), width=1, fill=0)
+                position = position + 1
+
+            position = 0
+            for rate in changes:
+                text = ""
+                if rate != None:
+                    text = "{:.2f} ".format(rate)
+                else:
+                    text = "N/A"
+
+                draw.text((172, 32 + position * 28), text, font=self.font24, fill=0)
+                position = position + 1
 
             # every so often clear the display
             self.iteration += 1
@@ -229,6 +294,8 @@ class eink:
             self.displayTempsAndChart(temps, changes, datasets, timebetweenupdates)
         elif self.displayPage == 2:
             self.displayTempsBig(temps, changes, datasets, timebetweenupdates)
+        elif self.displayPage == 3:
+            self.displayTable(temps, changes, datasets, timebetweenupdates)
 
     def turnOff(self):
 

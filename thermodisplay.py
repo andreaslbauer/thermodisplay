@@ -17,7 +17,7 @@ timebetweenupdates = 10
 def main():
     # log start up message
     logging.info("***************************************************************")
-    logging.info("Data Collector has started")
+    logging.info("eink Display process has started")
     logging.info("Running %s", __file__)
     logging.info("Working directory is %s", os.getcwd())
 
@@ -40,15 +40,22 @@ def main():
     einkDisplay.initDisplay()
     logging.info("Found eink display")
 
+    # check how many sensors there are
+    dataInfo= apis.getdataInfo()
+    numSensors = dataInfo['numSensors']
+    logging.info("Number of sensors detected: %s", numSensors)
+    timeBetweenUpdates = dataInfo['timeBetweenUpdates']
+    logging.info("Time between data updates: %s", timeBetweenUpdates)
+
     # list to store historical data to draw a chart
     data = []
-    for s in range(2):
+    for s in range(numSensors):
         data.append([])
 
     while True:
         values = []
         changes = []
-        for sensorId in range(1,3):
+        for sensorId in range(1, numSensors + 1):
             t = apis.getTemperatureData(sensorId)
             c = apis.getTemperatureChange(sensorId)
             values.append(t)
