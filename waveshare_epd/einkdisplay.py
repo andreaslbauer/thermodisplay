@@ -16,7 +16,6 @@ from PIL import Image, ImageDraw, ImageFont, ImageTk
 import datetime
 from gpiozero import Button
 
-
 class eink:
 
     # constructor; it initializes all data members per passed parameters
